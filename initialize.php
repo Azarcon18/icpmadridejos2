@@ -1,6 +1,6 @@
 <?php
 // Database configuration
-$dev_data = array(
+$dev_data = array (
     'id' => '-1',
     'firstname' => 'Developer',
     'lastname' => '',
