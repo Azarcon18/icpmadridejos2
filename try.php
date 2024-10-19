@@ -27,31 +27,39 @@ try {
     die("ERROR: Could not connect. " . $e->getMessage());
 }
 
+// Function to get all tables from the database
+function getAllTables($pdo) {
+    try {
+        // Fetch all table names from the database
+        $sql = "SHOW TABLES";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    } catch (PDOException $e) {
+        die("ERROR: Could not retrieve tables. " . $e->getMessage());
+    }
+}
+
 // Function to display all rows from a specified table
-function viewAllTableData($pdo, $tableName) {
+function viewTableData($pdo, $tableName) {
     try {
         // Prepare SQL query to fetch all rows from the specified table
         $sql = "SELECT * FROM " . $tableName;
         $stmt = $pdo->prepare($sql);
-        
-        // Execute the query
         $stmt->execute();
-        
-        // Fetch all results
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Check if any rows were returned
         if (count($rows) > 0) {
-            // Display results as an HTML table
+            echo "<h3>Table: " . htmlspecialchars($tableName) . "</h3>";
             echo "<table border='1'>";
             echo "<tr>";
-            // Display table headers
             foreach ($rows[0] as $key => $value) {
                 echo "<th>" . htmlspecialchars($key) . "</th>";
             }
             echo "</tr>";
 
-            // Display table data
+            // Display table rows
             foreach ($rows as $row) {
                 echo "<tr>";
                 foreach ($row as $value) {
@@ -59,15 +67,21 @@ function viewAllTableData($pdo, $tableName) {
                 }
                 echo "</tr>";
             }
-            echo "</table>";
+            echo "</table><br>";
         } else {
-            echo "No data found in the table.";
+            echo "<h3>Table: " . htmlspecialchars($tableName) . "</h3>";
+            echo "<p>No data found in this table.</p>";
         }
     } catch (PDOException $e) {
-        die("ERROR: Could not execute $sql. " . $e->getMessage());
+        die("ERROR: Could not retrieve data from $tableName. " . $e->getMessage());
     }
 }
 
-// Call the function to view all table data, e.g., 'users' table
-viewAllTableData($pdo, 'users');
+// Get all tables from the database
+$tables = getAllTables($pdo);
+
+// Loop through each table and display its data
+foreach ($tables as $table) {
+    viewTableData($pdo, $table);
+}
 ?>
